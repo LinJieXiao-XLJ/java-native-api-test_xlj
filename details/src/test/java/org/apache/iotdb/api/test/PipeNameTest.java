@@ -6,9 +6,7 @@ import org.apache.iotdb.isession.SessionDataSet;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.Session;
-import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.apache.tsfile.read.common.RowRecord;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
