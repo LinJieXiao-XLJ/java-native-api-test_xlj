@@ -12,11 +12,13 @@ public class Test {
     // 172.20.31.2
     public static void main(String[] args) throws IoTDBConnectionException, StatementExecutionException {
         Session session = new Session.Builder()
-                .host("172.20.31.2")
+                .host("127.0.0.1")
                 .port(6667)
                 .enableRedirection(false)
+                .maxRetryCount(0)
                 .build();
         session.open();
+
         List<String> deviceIds = new ArrayList<>();
         List<Long> timestamps = new ArrayList<>();
         List<List<String>> measurements = new ArrayList<>();

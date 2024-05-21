@@ -218,13 +218,13 @@ public class TestTimeSeries extends TimeSeriesBaseTestSuite {
         testCreateTimeSeries_tags(1);
     }
 
-    // TIMECHODB-126
-    @Test(priority = 52, expectedExceptions = StatementExecutionException.class)
+    // 1.3.3.1 修改，去掉限制
+    @Test(priority = 52)
     public void testCreateTimeSeries_max_props() throws IoTDBConnectionException, StatementExecutionException {
         testCreateTimeSeries_tags(700); //默认值：tag_attribute_total_size=700
     }
 
-    @Test(priority = 53, expectedExceptions = StatementExecutionException.class)
+    @Test(priority = 53)
     public void testCreateTimeSeries_GTprops_error() throws IoTDBConnectionException, StatementExecutionException {
         testCreateTimeSeries_tags(701);
     }

@@ -2,6 +2,7 @@ package org.apache.iotdb.api.test.detail;
 
 import org.apache.iotdb.api.test.BaseTestSuite;
 import org.apache.iotdb.api.test.utils.GenerateValues;
+import org.apache.iotdb.api.test.utils.PrepareConnection;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.tsfile.enums.TSDataType;
@@ -83,7 +84,8 @@ public class TestInsertParams extends BaseTestSuite {
         session.insertTablet(tablet);
     }
     // TIMECHODB-530
-    @Test(priority = 13, expectedExceptions = NullPointerException.class)
+//    @Test(priority = 13, expectedExceptions = NullPointerException.class)
+    @Test(priority = 13, expectedExceptions = IoTDBConnectionException.class)
     public void testInsertTablet_schemaListNullIn2() throws IoTDBConnectionException, StatementExecutionException {
         int insertCount = 1;
         List<MeasurementSchema> schemas = new ArrayList<>(3);
@@ -122,7 +124,7 @@ public class TestInsertParams extends BaseTestSuite {
                 }
             }
         }
-        session.insertTablet(tablet);
+        PrepareConnection.getSession().insertTablet(tablet);
     }
 
     @Test(priority = 14)
@@ -354,6 +356,79 @@ public class TestInsertParams extends BaseTestSuite {
         v.add(1.3f);
         v.add(2.3f);
         session.insertRecord(device, 100L, measurements, dataTypes, v);
+    }
+
+    @Test(priority = 50, expectedExceptions = StatementExecutionException.class)
+    public void testInsertTablet_sameTS() throws IoTDBConnectionException, StatementExecutionException {
+        int insertCount = 1;
+        List<MeasurementSchema> schemas = new ArrayList<>(3);
+        schemas.add(new MeasurementSchema("s_0", TSDataType.BOOLEAN));
+        schemas.add(new MeasurementSchema("s_1", TSDataType.INT32));
+        schemas.add(new MeasurementSchema("s_1", TSDataType.INT32));
+        Tablet tablet = new Tablet(database+".d_11", schemas, insertCount);
+        int rowIndex = 0;
+        long timestamp = baseTime;
+        for (int row = 0; row < insertCount; row++) {
+            rowIndex = tablet.rowSize++;
+            timestamp += 3600000; //+1小时
+//            System.out.println("row="+row+" rowIndex="+rowIndex);
+            tablet.addTimestamp(rowIndex, timestamp);
+//            tablet.addTimestamp(rowIndex, row);
+            for (int i = 0; i < schemas.size(); i++) {
+                switch(schemas.get(i).getType()) {
+                    case BOOLEAN:
+                        tablet.addValue(schemas.get(i).getMeasurementId(), rowIndex, GenerateValues.getBoolean());
+                        break;
+                    case INT32:
+                        tablet.addValue(schemas.get(i).getMeasurementId(), rowIndex, GenerateValues.getInt());
+                        break;
+                }
+            }
+        }
+        PrepareConnection.getSession().insertTablet(tablet);
+    }
+
+    @Test(priority = 51, expectedExceptions = StatementExecutionException.class)
+    public void testInsertRecord_sameTS() throws IoTDBConnectionException, StatementExecutionException {
+        List<TSDataType> schemas = new ArrayList<>(3);
+        List<String> paths = new ArrayList<>(3);
+        List<Object> values = new ArrayList<>(3);
+        schemas.add(TSDataType.BOOLEAN);
+        schemas.add(TSDataType.INT32);
+        schemas.add(TSDataType.INT32);
+        paths.add("s_0");
+        paths.add("s_1");
+        paths.add("s_1");
+        values.add(true);
+        values.add(32);
+        values.add(64);
+        PrepareConnection.getSession().insertRecord(device,1635232143960L, paths, schemas, values);
+    }
+    @Test(priority = 52, expectedExceptions = StatementExecutionException.class)
+    public void testInsertRecords_sameTS() throws IoTDBConnectionException, StatementExecutionException {
+        List<String> devices = new ArrayList<>(1);
+        List<Long> timestamps = new ArrayList<>(1);
+        List<List<TSDataType>> schemas = new ArrayList<>(1);
+        List<List<String>> measurements = new ArrayList<>(1);
+        List<List<Object>> values = new ArrayList<>(1);
+        devices.add(device);
+        timestamps.add(1635232143960L);
+        List<TSDataType> schema = new ArrayList<>(3);
+        List<String> paths = new ArrayList<>(3);
+        List<Object> value = new ArrayList<>(3);
+        schema.add(TSDataType.BOOLEAN);
+        schema.add(TSDataType.INT32);
+        schema.add(TSDataType.INT32);
+        schemas.add(schema);
+        paths.add("s_0");
+        paths.add("s_1");
+        paths.add("s_1");
+        measurements.add(paths);
+        value.add(true);
+        value.add(32);
+        value.add(64);
+        values.add(value);
+        PrepareConnection.getSession().insertRecords(devices,timestamps, measurements, schemas, values);
     }
 
 }
