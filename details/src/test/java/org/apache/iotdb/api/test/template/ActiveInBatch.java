@@ -36,6 +36,7 @@ public class ActiveInBatch extends BaseTestSuite {
     private String[] loadNodePaths = new String[]{"root.templateSingle1.single", "root.templateSingle2.sub"};
     private static final String tName = "tempGroupSingle";
     private static final String tsName = "s0";
+    //
     private static int maxDatabaseLength;
 
     @BeforeClass
