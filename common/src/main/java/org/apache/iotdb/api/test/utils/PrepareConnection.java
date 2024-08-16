@@ -1,6 +1,7 @@
 package org.apache.iotdb.api.test.utils;
 
 // 导入IoTDB的RPC异常类，用于处理与IoTDB服务器连接时可能发生的异常。
+
 import org.apache.iotdb.isession.util.Version;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 // 导入IoTDB的执行语句异常类，用于处理执行SQL语句时可能发生的异常。
@@ -31,7 +32,7 @@ public class PrepareConnection {
         }
     }
 
-    // 公共静态方法，用于获取Session对象。
+    // 公共静态方法，用于获取Session对象。 树模型
     public static Session getSession() throws IoTDBConnectionException {
         Session session = null;
         // 根据配置判断是否为集群模式，并创建对应的Session对象。
@@ -56,6 +57,28 @@ public class PrepareConnection {
                     .maxRetryCount(0) // 设置最大重试次数
                     .build();
         }
+        // 打开Session，并设置获取数据时的批量大小。
+        session.open(false);
+        session.setFetchSize(10000);
+        return session;
+    }
+
+    // 公共静态方法，用于获取Session对象。 表模型
+    public static Session getSession_TableModel() throws IoTDBConnectionException {
+        Session session = null;
+
+        // 非集群模式下，使用单个节点的URL和端口创建Session。
+        session = new Session.Builder()
+                .host(config.getValue("host")) // 设置主机地址
+                .port(Integer.parseInt(config.getValue("port"))) // 设置端口号
+                .username(config.getValue("user")) // 设置用户名
+                .password(config.getValue("password")) // 设置密码
+                .version(Version.V_1_0)           // 版本
+                .sqlDialect("table")              // 表模型标识符
+                .enableRedirection(false) // 设置是否启用重定向
+                .maxRetryCount(0) // 设置最大重试次数
+                .build();
+
         // 打开Session，并设置获取数据时的批量大小。
         session.open(false);
         session.setFetchSize(10000);

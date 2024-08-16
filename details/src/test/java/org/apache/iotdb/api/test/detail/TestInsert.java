@@ -8,6 +8,7 @@ import org.apache.tsfile.enums.TSDataType;
 import org.apache.tsfile.file.metadata.enums.CompressionType;
 import org.apache.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.tsfile.write.record.Tablet;
+import org.apache.tsfile.write.schema.IMeasurementSchema;
 import org.apache.tsfile.write.schema.MeasurementSchema;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +45,7 @@ public class TestInsert extends BaseTestSuite {
     // 数据类型
     private final List<TSDataType> dataTypes = new ArrayList<>(6);
     // 物理量模板
-    private final List<MeasurementSchema> schemaList = new ArrayList<>();// tablet
+    private final List<IMeasurementSchema> schemaList = new ArrayList<>();// tablet
     // 预期的记录条数
     private final int expectCount = 17;
 

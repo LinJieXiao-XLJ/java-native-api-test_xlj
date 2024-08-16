@@ -9,6 +9,8 @@ import org.apache.iotdb.session.Session;
 import org.apache.tsfile.enums.TSDataType;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
     public static void main(String[] args) throws IoTDBConnectionException, StatementExecutionException {
@@ -331,4 +333,30 @@ public class Test {
 //        return false;
 //    }
 
+//    @org.testng.annotations.Test
+    public void test1() {
+        String prefixTableName = "tableName";
+        int num = 1;
+        for (int i = 0; i < 5; i++) {
+            String tableName = prefixTableName + num++;
+            System.out.println(tableName);
+            System.out.println("create table " + tableName +
+                    " (" +
+                    "\"地区\" STRING ID, " +
+                    "\"厂号\" STRING ID, " +
+                    "\"设备号\" STRING ID, " +
+                    "\"温度\" FLOAT MEASUREMENT, " +
+                    "\"排量\" DOUBLE MEASUREMENT" +
+                    ")" +
+                    " with " +
+                    "TTL=" + 1);
+        }
+    }
+
+    @org.testng.annotations.Test
+    public void test2() {
+        Matcher matcher = Pattern.compile("table\\s*(\\w+)\\s*\\(").matcher("create table abcdefg ( \"地区\" STRING ID,\"型号\" STRING ATTRIBUTE,\"温度\" FLOAT MEASUREMENT,\"排量\" DOUBLE MEASUREMENT) with (TTL=3600000)");
+        assert matcher.find() : "未找到表名";
+        System.out.println(matcher.group(1).replaceAll("\\s+", ""));
+    }
 }

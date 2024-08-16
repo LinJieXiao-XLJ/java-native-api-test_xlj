@@ -2,6 +2,7 @@ package org.apache.iotdb.api.test.utils;
 
 
 // Apache Commons CSV库，用于解析CSV文件
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 // Apache TsFile的枚举类型，用于处理时间序列数据
@@ -56,6 +57,31 @@ public class CustomDataProvider {
         this.reader = Files.newBufferedReader(Paths.get(path));
         // 设置CSV文件的格式，包括分隔符、转义字符、引用字符和是否忽略空行
         CSVFormat csvformat = CSVFormat.DEFAULT.withDelimiter(delimiter).withEscape('\\').withQuote('"').withIgnoreEmptyLines(true);
+        // 解析CSV文件，返回包含CSV记录的Iterable对象
+        Iterable<CSVRecord> records = csvformat.parse(reader);
+        // 去除header
+        records.iterator().next();
+        return records;
+    }
+
+    /**
+     * 读取CSV文件，返回一个Iterable<CSVRecord>对象，包含除了第一行header之外的所有数据。(表模型的)
+     */
+    public Iterable<CSVRecord> readCSV_table(String filepath) throws IOException {
+        // 获取文件路径
+        String path = CustomDataProvider.class.getClassLoader().getResource(filepath).getPath();
+        // 防止Windows不兼容问题
+        // 若第一个字符为斜杠则去除
+        if (path.charAt(0) == '/') {
+            // 去除第一个斜杠
+            path = path.substring(1);
+        }
+        // 记录日志信息，包括文件路径
+        logger.info("read csv:" + path);
+        // 根据文件路径创建BufferedReader对象
+        this.reader = Files.newBufferedReader(Paths.get(path));
+        // 设置CSV文件的格式
+        CSVFormat csvformat = CSVFormat.MYSQL;
         // 解析CSV文件，返回包含CSV记录的Iterable对象
         Iterable<CSVRecord> records = csvformat.parse(reader);
         // 去除header
@@ -139,35 +165,90 @@ public class CustomDataProvider {
      * @throws IOException
      */
     public CustomDataProvider load(String filepath, char delimiter) throws IOException {
-        Iterable<CSVRecord> records = this.readCSV(filepath, delimiter);
+        Iterable<CSVRecord> records;
+        // 使用指定分隔符读取CSV文件
+        records = this.readCSV(filepath, delimiter);
+        // 遍历CSV文件的每一条记录
         for (CSVRecord record : records) {
-            // 解析每一行
+            // 创建一个列表，用于存储解析后的列数据
             List<Object> columns_arr = new ArrayList<>();
+            // 创建一个迭代器，用于遍历CSV记录的每一列
             Iterator<String> record_iter = record.iterator();
-            // 如果以#开头，那么跳过
+            // 读取第一列数据
             String cols = record_iter.next();
+            // 标记是否需要跳出循环
             boolean breakFlag = false;
+            // 如果第一列数据不以"#"开头，则进行解析
             if (!cols.startsWith("#")) {
+                // 使用无限循环进行列数据解析，直到没有更多的列数据
                 while (true) {
+                    // 如果列数据以"m:"开头，表示这是一个映射字段，需要特殊处理
                     if (cols.startsWith("m:")) {
-                        cols = cols.substring(2);
-                        columns_arr.add(processMapField(cols));
-                    } else if (cols.startsWith("l:")) {
-                        cols = cols.substring(2);
-                        columns_arr.add(processListField(cols));
-                    } else if (cols.equals("null")) {
+                        cols = cols.substring(2); // 去掉"m:"前缀
+                        columns_arr.add(processMapField(cols)); // 处理映射字段
+                    }
+                    // 如果列数据以"l:"开头，表示这是一个列表字段，需要特殊处理
+                    else if (cols.startsWith("l:")) {
+                        cols = cols.substring(2); // 去掉"l:"前缀
+                        columns_arr.add(processListField(cols)); // 处理列表字段
+                    }
+                    // 如果列数据为"null"，添加null到列表
+                    else if (cols.equals("null")) {
                         columns_arr.add(null);
-                    } else {
+                    }
+                    // 如果列数据不符合上述情况，直接添加到列表
+                    else {
                         columns_arr.add(cols);
                     }
+                    // 检查是否还有更多的列数据
                     if (record_iter.hasNext()) {
-                        cols = record_iter.next();
+                        cols = record_iter.next(); // 读取下一列数据
                     } else {
-                        breakFlag = true;
+                        breakFlag = true; // 如果没有更多的列数据，设置标记为true
                     }
+                    // 如果标记为true，则跳出循环
                     if (breakFlag) break;
                 }
-//                out.println(columns_arr);
+                // 注释掉的代码，可能是用于调试输出解析后的列数据
+                // out.println(columns_arr);
+                // 将解析后的列数据转换为数组，并添加到testCases列表中
+                this.testCases.add(columns_arr.stream().toArray());
+            }
+        }
+        // 返回CustomDataProvider对象本身，支持链式调用
+        return this;
+    }
+
+    /**
+     * 表模型解析文件
+     */
+    private CustomDataProvider load_tableModel(String filepath) throws IOException {
+        Iterable<CSVRecord> records;
+        records = this.readCSV_table(filepath);
+        for (CSVRecord record : records) {
+            // 创建一个列表，用于存储解析后的列数据
+            List<Object> columns_arr = new ArrayList<>();
+            // 创建一个迭代器，用于遍历CSV记录的每一列
+            Iterator<String> record_iter = record.iterator();
+            // 读取第一列数据
+            String cols = record_iter.next();
+            // 标记是否需要跳出循环
+            boolean breakFlag = false;
+            // 如果第一列数据不以"#"开头，则进行添加
+            if (!cols.startsWith("#")) {
+                while (true) {
+                    // 直接添加到列表
+                    columns_arr.add(cols);
+                    // 检查是否还有更多的列数据
+                    if (record_iter.hasNext()) {
+                        cols = record_iter.next(); // 读取下一列数据
+                    } else {
+                        breakFlag = true; // 如果没有更多的列数据，设置标记为true
+                    }
+                    // 如果标记为true，则跳出循环
+                    if (breakFlag) break;
+                }
+                // 将解析后的列数据转换为数组，并添加到testCases列表中
                 this.testCases.add(columns_arr.stream().toArray());
             }
         }
@@ -237,7 +318,6 @@ public class CustomDataProvider {
     }
 
     /**
-     *
      * @param datatypeStr
      * @return
      */
@@ -265,7 +345,6 @@ public class CustomDataProvider {
     }
 
     /**
-     *
      * @param encodingStr
      * @return
      */
@@ -303,7 +382,6 @@ public class CustomDataProvider {
     }
 
     /**
-     *
      * @param compressStr
      * @return
      */
@@ -385,7 +463,6 @@ public class CustomDataProvider {
     }
 
     /**
-     *
      * @param filepath
      * @return
      * @throws IOException
@@ -421,7 +498,6 @@ public class CustomDataProvider {
     }
 
     /**
-     *
      * @param filepath
      * @return
      * @throws IOException
@@ -431,7 +507,19 @@ public class CustomDataProvider {
     }
 
     /**
-     *
+     * @param filepath
+     * @return
+     * @throws IOException
+     */
+    public CustomDataProvider load_table(String filepath, boolean isSQL) throws IOException {
+        if (isSQL) {
+            return load_tableModel(filepath);
+        } else {
+            return load(filepath, ',');
+        }
+    }
+
+    /**
      * @return
      * @throws IOException
      */

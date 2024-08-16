@@ -1,0 +1,3 @@
+selectSQL
+# 查询不存在的表
+select * from nonono

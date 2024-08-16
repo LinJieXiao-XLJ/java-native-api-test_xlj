@@ -1,0 +1,3 @@
+deleteSQL
+delete from device_type_a where time = 1
+delete from device_type_a where "地区" = '湖南'

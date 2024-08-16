@@ -1,0 +1,5 @@
+tablename
+# 一、各种组合的表名
+# 1、纯字母命名
+#（1）单个，无TTL，无属性列
+create table 123 ( "地区" STRING ID,"厂号" STRING ID,"设备号" STRING ID,"温度" FLOAT MEASUREMENT,"排量" DOUBLE MEASUREMENT)

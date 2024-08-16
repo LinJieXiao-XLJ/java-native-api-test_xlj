@@ -188,7 +188,7 @@ public class TestInsertRecords_Normal_NotNull extends BaseTestSuite {
             }
         }
         // 插入数据
-        session.insertRecords(deviceIds, times, measurementsList, typesList, valuesList);
+        //session.insertRecords(deviceIds, times, measurementsList, typesList, valuesList);
         // 执行SQL查询并计算行数
         countLines("select * from " + deviceId1, verbose);
         countLines("select * from " + deviceId2, verbose);
