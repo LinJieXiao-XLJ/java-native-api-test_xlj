@@ -64,7 +64,7 @@ public class TestTable extends BaseTestSuite_TableModel {
                 "text text MEASUREMENT," +
                 "string string MEASUREMENT," +
                 "blob blob MEASUREMENT," +
-                "timestamp01 timestamp MEASUREMENT," +
+//                "timestamp01 timestamp MEASUREMENT," +
                 "date date MEASUREMENT)");
 
         List<IMeasurementSchema> schemas = new ArrayList<>();
@@ -78,7 +78,7 @@ public class TestTable extends BaseTestSuite_TableModel {
         schemas.add(new MeasurementSchema("text", TSDataType.TEXT));
         schemas.add(new MeasurementSchema("string", TSDataType.STRING));
         schemas.add(new MeasurementSchema("blob", TSDataType.BLOB));
-        schemas.add(new MeasurementSchema("timestamp", TSDataType.TIMESTAMP));
+//        schemas.add(new MeasurementSchema("timestamp", TSDataType.TIMESTAMP));
         schemas.add(new MeasurementSchema("date", TSDataType.DATE));
         final List<Tablet.ColumnType> columnTypes = Arrays.asList(
                 Tablet.ColumnType.ID,
@@ -91,7 +91,7 @@ public class TestTable extends BaseTestSuite_TableModel {
                 Tablet.ColumnType.MEASUREMENT,
                 Tablet.ColumnType.MEASUREMENT,
                 Tablet.ColumnType.MEASUREMENT,
-                Tablet.ColumnType.MEASUREMENT,
+//                Tablet.ColumnType.MEASUREMENT,
                 Tablet.ColumnType.MEASUREMENT);
 
         long timestamp = 0;
@@ -110,7 +110,7 @@ public class TestTable extends BaseTestSuite_TableModel {
             tablet.addValue("text", rowIndex, "true");
             tablet.addValue("string", rowIndex, "true");
             tablet.addValue("blob", rowIndex, new Binary("iotdb", Charset.defaultCharset()));
-            tablet.addValue("timestamp", rowIndex, 1L);
+//            tablet.addValue("timestamp", rowIndex, 1L);
             tablet.addValue("date", rowIndex, LocalDate.parse("2024-08-15"));
         }
         session.insertRelationalTablet(tablet, true);

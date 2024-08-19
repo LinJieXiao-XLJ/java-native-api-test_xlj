@@ -3,7 +3,7 @@ tableName
 # 1、纯字母命名
 create table a ("地区" STRING ID, "厂号" STRING ID, "设备号" STRING ID, "温度" FLOAT MEASUREMENT, "排量" DOUBLE MEASUREMENT)
 create table TestTable.b ("地区" STRING ID, "厂号" STRING ID, "设备号" STRING ID, "型号" STRING ATTRIBUTE, "温度" FLOAT MEASUREMENT, "排量" DOUBLE MEASUREMENT)
-create table abcd (device_id STRING ID, color STRING ATTRIBUTE, s1 FLOAT MEASUREMENT, s2 DOUBLE MEASUREMENT)
+create table "table" (device_id STRING ID, "table" STRING ATTRIBUTE, s1 FLOAT MEASUREMENT, s2 DOUBLE MEASUREMENT)
 # 空表
 create table abcde ()
 # 64位长度

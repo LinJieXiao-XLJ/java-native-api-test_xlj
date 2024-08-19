@@ -281,16 +281,46 @@ public class ActiveInBatch extends BaseTestSuite {
                 (TSEncoding) struct.get(1), (CompressionType) struct.get(2));
         template.addToTemplate(mNode);
         session.createSchemaTemplate(template);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            // 处理InterruptedException异常
+            Thread.currentThread().interrupt();
+        }
         assert checkTemplateExists(templateName) : "创建模版成功";
         session.setSchemaTemplate(templateName, database);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            // 处理InterruptedException异常
+            Thread.currentThread().interrupt();
+        }
         assert checkTemplateContainPath(templateName, database) : "挂载模版成功";
         paths.add(database+"."+name);
         session.createTimeseriesUsingSchemaTemplate(paths);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            // 处理InterruptedException异常
+            Thread.currentThread().interrupt();
+        }
         assert paths.size() == getActivePathsCount(templateName, verbose) : "激活成功: expect "+paths.size()+" actual "+getActivePathsCount(templateName, verbose);
         assert checkUsingTemplate(paths.get(0), verbose) : paths.get(0)+"使用了模版";
         insertRecordSingle(database+"."+name+"."+name, tsDataType, isAligned, null);
         session.deleteStorageGroup(database);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            // 处理InterruptedException异常
+            Thread.currentThread().interrupt();
+        }
         session.dropSchemaTemplate(templateName);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            // 处理InterruptedException异常
+            Thread.currentThread().interrupt();
+        }
         session.createDatabase(database);
         session.close();
     }
