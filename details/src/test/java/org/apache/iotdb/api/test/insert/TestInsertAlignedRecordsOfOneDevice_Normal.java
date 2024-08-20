@@ -40,14 +40,12 @@ public class TestInsertAlignedRecordsOfOneDevice_Normal extends BaseTestSuite {
     private final List<List<TSDataType>> typesList = new ArrayList<>(3);
     // 存储多个设备的多个值
     private final List<List<Object>> valuesList = new ArrayList<>(3);
-    // 存储多个时间序列路径
-    private final List<String> paths = new ArrayList<>(10);
     // 用于存储物理量
-    private final ArrayList<String> measurements = new ArrayList<>();
+    private ArrayList<String> measurements = new ArrayList<>();
     // 用于存储数据类型
-    private final ArrayList<TSDataType> dataTypes = new ArrayList<>();
+    private ArrayList<TSDataType> dataTypes = new ArrayList<>();
     // 用于存储值
-    private final ArrayList<Object> values = new ArrayList<>();
+    private ArrayList<Object> values = new ArrayList<>();
 
     // 存储物理量名称和数据类型
     private final Map<String, TSDataType> measureTSTypeInfos = new LinkedHashMap<>(10);
@@ -80,14 +78,17 @@ public class TestInsertAlignedRecordsOfOneDevice_Normal extends BaseTestSuite {
         measureTSTypeInfos.put("s_timestamp", TSDataType.TIMESTAMP);
         measureTSTypeInfos.put("s_date", TSDataType.DATE);
         // 3.2、遍历measureTSTypeInfos，将路径、物理量和数据类型存入对应集合中
-        measureTSTypeInfos.forEach((key, value) -> {
-            paths.add(deviceId + "." + key);
-            measurements.add(key);
-            dataTypes.add(value);
-        });
-        // 将集合存入对应的集合中
-        measurementsList.add(measurements);
-        typesList.add(dataTypes);
+        for (int i = 0; i < 10; i++) {
+            measurements = new ArrayList<>(10);
+            dataTypes = new ArrayList<>(10);
+            measureTSTypeInfos.forEach((key, value) -> {
+                measurements.add(key);
+                dataTypes.add(value);
+            });
+            // 将集合存入对应的集合中
+            measurementsList.add(measurements);
+            typesList.add(dataTypes);
+        }
         // 3.3、创建并添加编码和压缩类型的列表
         List<TSEncoding> encodings = new ArrayList<>(10);
         List<CompressionType> compressionTypes = new ArrayList<>(10);
@@ -111,6 +112,7 @@ public class TestInsertAlignedRecordsOfOneDevice_Normal extends BaseTestSuite {
             Object[] line = it.next();
             // 获取时间戳
             time = Long.valueOf((String) line[0]);
+            values = new ArrayList<>(10);
             // 打印行索引和时间戳
 //            out.println("########### 行号：" + number++ + "| 时间戳:" + line[0]);
             // 遍历每行逐个物理量的数据
@@ -150,13 +152,9 @@ public class TestInsertAlignedRecordsOfOneDevice_Normal extends BaseTestSuite {
             // 添加值
             valuesList.add(values);
             times.add(Long.valueOf((String) line[0]));
-            // 插入数据
-            session.insertAlignedRecordsOfOneDevice(deviceId, times, measurementsList, typesList, valuesList);
-            // 清空容器
-            values.clear();
-            valuesList.clear();
-            times.clear();
         }
+        // 插入数据
+        session.insertRecordsOfOneDevice(deviceId, times, measurementsList, typesList, valuesList);
         // 执行SQL查询并计算行数
         countLines("select * from " + deviceId, verbose);
         // 对比是否操作成功

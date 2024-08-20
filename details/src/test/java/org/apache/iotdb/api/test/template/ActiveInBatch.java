@@ -58,6 +58,36 @@ public class ActiveInBatch extends BaseTestSuite {
         return new CustomDataProvider().load("data/names-normal.csv").getData();
     }
 
+    @Test(priority = 1, dataProvider = "getNormalNames")
+    public void testNormalOne(String name, String comment, String index) throws StatementExecutionException, IoTDBConnectionException, IOException {
+        Session session = PrepareConnection.getSession();
+        String database = databasePrefix+index;
+        String templateName = templateNamePrefix+index;
+        if (!checkStroageGroupExists(database)) {
+            session.createDatabase(database);
+        }
+        List<String> paths = new ArrayList<>(1);
+        Template template = new Template(templateName, isAligned);
+        List<Object> struct = Tools.getRandom(structures);
+        TSDataType tsDataType = (TSDataType) struct.get(0);
+        MeasurementNode mNode = new MeasurementNode(name, tsDataType,
+                (TSEncoding) struct.get(1), (CompressionType) struct.get(2));
+        template.addToTemplate(mNode);
+        session.createSchemaTemplate(template);
+        assert checkTemplateExists(templateName) : "创建模版成功";
+        session.setSchemaTemplate(templateName, database);
+        assert checkTemplateContainPath(templateName, database) : "挂载模版成功";
+        paths.add(database+"."+name);
+        session.createTimeseriesUsingSchemaTemplate(paths);
+        assert paths.size() == getActivePathsCount(templateName, verbose) : "激活成功: expect "+paths.size()+" actual "+getActivePathsCount(templateName, verbose);
+        assert checkUsingTemplate(paths.get(0), verbose) : paths.get(0)+"使用了模版";
+        insertRecordSingle(database+"."+name+"."+name, tsDataType, isAligned, null);
+        session.deleteStorageGroup(database);
+        session.dropSchemaTemplate(templateName);
+        session.createDatabase(database);
+        session.close();
+    }
+
     //TIMECHODB-82
     @Test(priority = 10)
     public void testNullError() {
@@ -263,66 +293,6 @@ public class ActiveInBatch extends BaseTestSuite {
         for (int i = 0; i < paths.size() ; i++) {
             insertRecordSingle(paths.get(i)+"."+tsName, TSDataType.INT32, isAligned,null);
         }
-    }
-
-    @Test(priority = 120, dataProvider = "getNormalNames")
-    public void testNormalOne(String name, String comment, String index) throws StatementExecutionException, IoTDBConnectionException, IOException {
-        Session session = PrepareConnection.getSession();
-        String database = databasePrefix+index;
-        String templateName = templateNamePrefix+index;
-        if (!checkStroageGroupExists(database)) {
-            session.createDatabase(database);
-        }
-        List<String> paths = new ArrayList<>(1);
-        Template template = new Template(templateName, isAligned);
-        List<Object> struct = Tools.getRandom(structures);
-        TSDataType tsDataType = (TSDataType) struct.get(0);
-        MeasurementNode mNode = new MeasurementNode(name, tsDataType,
-                (TSEncoding) struct.get(1), (CompressionType) struct.get(2));
-        template.addToTemplate(mNode);
-        session.createSchemaTemplate(template);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            // 处理InterruptedException异常
-            Thread.currentThread().interrupt();
-        }
-        assert checkTemplateExists(templateName) : "创建模版成功";
-        session.setSchemaTemplate(templateName, database);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            // 处理InterruptedException异常
-            Thread.currentThread().interrupt();
-        }
-        assert checkTemplateContainPath(templateName, database) : "挂载模版成功";
-        paths.add(database+"."+name);
-        session.createTimeseriesUsingSchemaTemplate(paths);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            // 处理InterruptedException异常
-            Thread.currentThread().interrupt();
-        }
-        assert paths.size() == getActivePathsCount(templateName, verbose) : "激活成功: expect "+paths.size()+" actual "+getActivePathsCount(templateName, verbose);
-        assert checkUsingTemplate(paths.get(0), verbose) : paths.get(0)+"使用了模版";
-        insertRecordSingle(database+"."+name+"."+name, tsDataType, isAligned, null);
-        session.deleteStorageGroup(database);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            // 处理InterruptedException异常
-            Thread.currentThread().interrupt();
-        }
-        session.dropSchemaTemplate(templateName);
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            // 处理InterruptedException异常
-            Thread.currentThread().interrupt();
-        }
-        session.createDatabase(database);
-        session.close();
     }
 //    @Test(priority = 130)
     public void createTemplateBig() throws IoTDBConnectionException, StatementExecutionException, IOException {
