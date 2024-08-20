@@ -63,22 +63,33 @@ public class PrepareConnection {
         return session;
     }
 
-    // 公共静态方法，用于获取Session对象。 表模型
+    // 用于获取Session对象——表模型
     public static Session getSession_TableModel() throws IoTDBConnectionException {
         Session session = null;
-
-        // 非集群模式下，使用单个节点的URL和端口创建Session。
-        session = new Session.Builder()
-                .host(config.getValue("host")) // 设置主机地址
-                .port(Integer.parseInt(config.getValue("port"))) // 设置端口号
-                .username(config.getValue("user")) // 设置用户名
-                .password(config.getValue("password")) // 设置密码
-                .version(Version.V_1_0)           // 版本
-                .sqlDialect("table")              // 表模型标识符
-                .enableRedirection(false) // 设置是否启用重定向
-                .maxRetryCount(0) // 设置最大重试次数
-                .build();
-
+        // 根据配置判断是否为集群模式，并创建对应的Session对象。
+        if (config.getValue("is_cluster").equals("true")) {
+            // 集群模式下，使用多个节点的URL创建Session。
+            String host_nodes_str = config.getValue("host_nodes");
+            session = new Session.Builder()
+                    .nodeUrls(Arrays.asList(host_nodes_str.split(","))) // 设置节点URL列表
+                    .username(config.getValue("user")) // 设置用户名
+                    .password(config.getValue("password")) // 设置密码
+                    .enableRedirection(false) // 设置是否启用重定向
+                    .maxRetryCount(0) // 设置最大重试次数
+                    .build();
+        } else {
+            // 非集群模式下，使用单个节点的URL和端口创建Session。
+            session = new Session.Builder()
+                    .host(config.getValue("host")) // 设置主机地址
+                    .port(Integer.parseInt(config.getValue("port"))) // 设置端口号
+                    .username(config.getValue("user")) // 设置用户名
+                    .password(config.getValue("password")) // 设置密码
+                    .version(Version.V_1_0)           // 版本
+                    .sqlDialect("table")              // 表模型标识符
+                    .enableRedirection(false) // 设置是否启用重定向
+                    .maxRetryCount(0) // 设置最大重试次数
+                    .build();
+        }
         // 打开Session，并设置获取数据时的批量大小。
         session.open(false);
         session.setFetchSize(10000);

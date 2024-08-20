@@ -1,11 +1,15 @@
 databasenamen
-# 字母
+# 字母（大小写、数量）
 a
 abcd
 ABCDE
-# 下划线
+qwertyuiopasdfghjklzxcvbnm
+aaaaaaaaaaaa
+bbbbbbbbbbbb
+# 下划线（数量）
 _
 ____
+-------------------------------------------------------------
 # 字母、数字和下划线的组合
 a123
 a___

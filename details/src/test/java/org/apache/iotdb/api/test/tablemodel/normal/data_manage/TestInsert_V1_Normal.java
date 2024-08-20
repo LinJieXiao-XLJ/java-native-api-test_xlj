@@ -208,11 +208,8 @@ public class TestInsert_V1_Normal extends BaseTestSuite_TableModel {
             int rowIndex = tablet.rowSize++;
             // 添加时间戳
             tablet.addTimestamp(rowIndex, Long.valueOf((String) line[0]));
-            System.out.println("########### 行号：" + (rowIndex + 1) + " | 时间戳:" + line[0] + " ###########"); // 打印行索引和时间戳
             // 获取每行每列的数据
             for (int i = 0; i < schemas.size(); i++) {
-                System.out.println("datatype=" + schemas.get(i).getType()); // 打印数据类型
-                System.out.println("line[" + (i + 1) + "]=" + line[i + 1]); // 打印当前行的列值
                 // 根据数据类型添加值到tablet
                 switch (schemas.get(i).getType()) {
                     case BOOLEAN:
@@ -264,15 +261,6 @@ public class TestInsert_V1_Normal extends BaseTestSuite_TableModel {
         }
         // 判断数量是否符合预期
         assert expect == actual : "TestInsert_V1_Normal 的 insertRelationalTablet 实际不一致期待：" + expect + "，实际：" + actual;
-
-//        SessionDataSet dataSet = session.executeQueryStatement("select * from table2 order by time");
-//        while (dataSet.hasNext()) {
-//            RowRecord rowRecord = dataSet.next();
-//            long timestamp = rowRecord.getFields().get(0).getLongV();
-//            assertEquals(timestamp, rowRecord.getFields().get(1).getBinaryV().toString());
-//            assertEquals(timestamp, rowRecord.getFields().get(2).getBinaryV().toString());
-//            assertEquals(timestamp * 1.0, rowRecord.getFields().get(3).getDoubleV(), 0.0001);
-//        }
     }
 
     /**
@@ -323,11 +311,8 @@ public class TestInsert_V1_Normal extends BaseTestSuite_TableModel {
             int rowIndex = tablet.rowSize++;
             // 添加时间戳
             tablet.addTimestamp(rowIndex, Long.valueOf((String) line[0]));
-            System.out.println("########### 行号：" + (rowIndex + 1) + " | 时间戳:" + line[0] + " ###########"); // 打印行索引和时间戳
             // 获取每行每列的数据
             for (int i = 0; i < schemas.size(); i++) {
-                System.out.println("datatype=" + schemas.get(i).getType()); // 打印数据类型
-                System.out.println("line[" + (i + 1) + "]=" + line[i + 1]); // 打印当前行的列值
                 // 根据数据类型添加值到tablet
                 switch (schemas.get(i).getType()) {
                     case BOOLEAN:
@@ -433,11 +418,8 @@ public class TestInsert_V1_Normal extends BaseTestSuite_TableModel {
             int rowIndex = tablet.rowSize++;
             // 添加时间戳
             tablet.addTimestamp(rowIndex, Long.valueOf((String) line[0]));
-            System.out.println("########### 行号：" + (rowIndex + 1) + " | 时间戳:" + line[0] + " ###########"); // 打印行索引和时间戳
             // 获取每行每列的数据
             for (int i = 0; i < schemas.size(); i++) {
-                System.out.println("datatype=" + schemas.get(i).getType()); // 打印数据类型
-                System.out.println("line[" + (i + 1) + "]=" + line[i + 1]); // 打印当前行的列值
                 // 根据数据类型添加值到tablet
                 switch (schemas.get(i).getType()) {
                     case BOOLEAN:
